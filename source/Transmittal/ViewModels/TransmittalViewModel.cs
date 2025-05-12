@@ -46,18 +46,18 @@ internal partial class TransmittalViewModel : BaseViewModel, IStatusRequester, I
     [ObservableProperty]
     private System.Windows.Visibility _isWindowVisible = System.Windows.Visibility.Visible;
 
-    private TransmittalModel _newTransmittal = new();    
-    
+    private TransmittalModel _newTransmittal = new();
+
     ///  DRAWING SHEETS
     public List<DrawingSheetModel> DrawingSheets { get; private set; }
-    
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsSheetsSelected))]
     private ObservableCollection<object> _selectedDrawingSheets;
 
     [ObservableProperty]
     private bool _isSheetsSelected = false;
-    
+
     [ObservableProperty]
     private bool _isSelectedSheetsValid = false;
 
@@ -82,12 +82,15 @@ internal partial class TransmittalViewModel : BaseViewModel, IStatusRequester, I
     [ObservableProperty]
     private bool _pDF24Available = false;
 
+    /// <summary>
+    /// pdf输出方式 是否选择用Revit PDF Exporter(不用打印机)
+    /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(PDF24Selected))]
     private bool _revitPDFExporterSelected = true; //default should be to export with the Revit PDF Exporter
 
     public bool PDF24Selected => !RevitPDFExporterSelected;
-    
+
     public bool IsExportFormatSelected => ExportFormatCount > 0;
 
     [ObservableProperty]
@@ -96,7 +99,7 @@ internal partial class TransmittalViewModel : BaseViewModel, IStatusRequester, I
     private DWGExportOptions _dwgExportOptions = new();
     [ObservableProperty]
     private DWFExportOptions _dwfExportOptions = new();
-    [ObservableProperty] 
+    [ObservableProperty]
     private PrintManager _printManager;
     [ObservableProperty]
     private PrintSetup _printSetup;
@@ -185,7 +188,7 @@ internal partial class TransmittalViewModel : BaseViewModel, IStatusRequester, I
         WindowTitle = $"Transmittal {informationVersion} ({App.RevitDocument.Title})";
 
         _settingsServiceRvt.GetSettingsRvt(App.RevitDocument);
-        
+
         WireUpSheetsPage();
 
         WireUpExportFormatsPage();
@@ -252,7 +255,7 @@ internal partial class TransmittalViewModel : BaseViewModel, IStatusRequester, I
         DwgLayerMapping = DwgLayerMappings.FirstOrDefault();
 
         DwgVersions = Enum.GetValues(typeof(ACADVersion));
-        DwgVersion = ACADVersion.Default;        
+        DwgVersion = ACADVersion.Default;
     }
 
     private void WireUpDistributionPage()
@@ -323,10 +326,10 @@ internal partial class TransmittalViewModel : BaseViewModel, IStatusRequester, I
 
             drawingSheet.DrgOriginator = _settingsService.GlobalSettings.Originator;
             drawingSheet.DrgRole = _settingsService.GlobalSettings.Role;
-                        
+
             drawingSheet.DrgProj = _settingsService.GlobalSettings.ProjectIdentifier;
 
-            if(_settingsService.GlobalSettings.ProjectIdentifier == string.Empty ||
+            if (_settingsService.GlobalSettings.ProjectIdentifier == string.Empty ||
                 _settingsService.GlobalSettings.ProjectIdentifier == null)
             {
                 drawingSheet.DrgProj = _settingsService.GlobalSettings.ProjectNumber;
@@ -366,7 +369,7 @@ internal partial class TransmittalViewModel : BaseViewModel, IStatusRequester, I
     {
         IsSheetsSelected = false;
         IsSelectedSheetsValid = false;
-        
+
         if (SelectedDrawingSheets.Count > 0)
         {
             IsSheetsSelected = true;
@@ -389,8 +392,8 @@ internal partial class TransmittalViewModel : BaseViewModel, IStatusRequester, I
                 }
             }
         }
-    }    
-    
+    }
+
     public void StatusComplete(DocumentStatusModel model)
     {
         //get the sheets in the model
@@ -450,7 +453,7 @@ internal partial class TransmittalViewModel : BaseViewModel, IStatusRequester, I
                             trans.Start();
 
                             param.Set(status);
-                            
+
                             trans.Commit();
                         }
                         catch (Exception)
@@ -549,7 +552,7 @@ internal partial class TransmittalViewModel : BaseViewModel, IStatusRequester, I
 
         trans.Commit();
     }
-   
+
 
     #endregion
 
@@ -571,7 +574,7 @@ internal partial class TransmittalViewModel : BaseViewModel, IStatusRequester, I
     #endregion
 
     #region Distribution
-    
+
     public void PersonComplete(PersonModel model)
     {
         _contactDirectoryService.CreatePerson(model);
@@ -584,7 +587,7 @@ internal partial class TransmittalViewModel : BaseViewModel, IStatusRequester, I
 
         ProjectDirectory.Add(projectDirectoryModel);
     }
-    
+
     private void ValidateTransmittal()
     {
         IsFinishEnabled = true;
@@ -602,7 +605,7 @@ internal partial class TransmittalViewModel : BaseViewModel, IStatusRequester, I
 
     private void ProjectDirectory_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-        
+
     }
 
     private void Distribution_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -639,7 +642,7 @@ internal partial class TransmittalViewModel : BaseViewModel, IStatusRequester, I
             {
                 TransmittalDistributionModel distributionRecord = new()
                 {
-                    
+
                     Company = directoryContact.Company,
                     Person = directoryContact.Person,
                     PersonID = directoryContact.Person.ID,
@@ -675,6 +678,7 @@ internal partial class TransmittalViewModel : BaseViewModel, IStatusRequester, I
 
     #endregion
 
+    //TODO 增加合并选项
     [RelayCommand]
     private void ProcessSheets()
     {
@@ -722,7 +726,7 @@ internal partial class TransmittalViewModel : BaseViewModel, IStatusRequester, I
                                  drawingSheet.DrgType,
                                  drawingSheet.DrgRole,
                                  sheet.SheetNumber,
-                                 drawingSheet.DrgName, 
+                                 drawingSheet.DrgName,
                                  drawingSheet.DrgRev,
                                  drawingSheet.DrgStatus,
                                  drawingSheet.DrgStatusDescription);
@@ -800,14 +804,14 @@ internal partial class TransmittalViewModel : BaseViewModel, IStatusRequester, I
                 CopyDistributionToClipboard();
             }
 
-            if(GenerateExtranetCopies == true)
+            if (GenerateExtranetCopies == true)
             {
                 CopyFilesForExtranet();
                 GenerateExtranetImportFile();
             }
 
             OpenExplorerToExportedFilesLocations();
-             
+
             //just pause before closing the window
             Thread.Sleep(5000);
 
@@ -818,8 +822,8 @@ internal partial class TransmittalViewModel : BaseViewModel, IStatusRequester, I
         }
         catch (Exception ex)
         {
-            Autodesk.Revit.UI.TaskDialog.Show("Error", 
-                $"There has been an error processing sheet exports. {Environment.NewLine} {ex}", 
+            Autodesk.Revit.UI.TaskDialog.Show("Error",
+                $"There has been an error processing sheet exports. {Environment.NewLine} {ex}",
                 Autodesk.Revit.UI.TaskDialogCommonButtons.Ok);
 
             CloseProgress();
@@ -845,19 +849,13 @@ internal partial class TransmittalViewModel : BaseViewModel, IStatusRequester, I
 #else
         string filePath = string.Empty;
 
-        if(RevitPDFExporterSelected == true)
+        if (RevitPDFExporterSelected == true)
         {
-            filePath = _exportPDFService.ExportPDF(fileName,
-                App.RevitDocument,
-                views,
-                PdfExportOptions);
+            filePath = _exportPDFService.ExportPDF(fileName, App.RevitDocument, views, PdfExportOptions);
         }
         else
         {
-            filePath = _exportPDFService.PrintPDF(fileName,
-                App.RevitDocument,
-                views,
-                PdfExportOptions);
+            filePath = _exportPDFService.PrintPDF(fileName, App.RevitDocument, views, PdfExportOptions);
         }
 
 #endif
@@ -1115,7 +1113,7 @@ internal partial class TransmittalViewModel : BaseViewModel, IStatusRequester, I
 
     private void RecordTransmittalInDatabase()
     {
-        if(RecordTransmittal == false)
+        if (RecordTransmittal == false)
         {
             return;
         }
@@ -1169,15 +1167,15 @@ internal partial class TransmittalViewModel : BaseViewModel, IStatusRequester, I
         var pathToExe = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Transmittal", "Transmittal.Desktop.exe");
 #endif
 
-        if(File.Exists(pathToExe))
+        if (File.Exists(pathToExe))
         {
             ProcessStartInfo processStartInfo = new ProcessStartInfo();
             processStartInfo.FileName = pathToExe;
             processStartInfo.Arguments = $"--transmittal={_newTransmittal.ID} \"--database={dbFile}\"";
 
-            Process.Start(processStartInfo);   
+            Process.Start(processStartInfo);
         }
-     
+
     }
 
     private void CopyDistributionToClipboard()
@@ -1209,7 +1207,7 @@ internal partial class TransmittalViewModel : BaseViewModel, IStatusRequester, I
             // Create and show the Window
             ProgressView progressWindow = new();
 
-            progressWindow.Closed += (s, e) => 
+            progressWindow.Closed += (s, e) =>
             Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatcherPriority.Background);
 
             progressWindow.Show();
@@ -1232,8 +1230,8 @@ internal partial class TransmittalViewModel : BaseViewModel, IStatusRequester, I
     {
         WeakReferenceMessenger.Default.Send(
             new ProgressUpdateMessage(
-                new ProgressMessageModel 
-                { 
+                new ProgressMessageModel
+                {
                     CurrentStepProgressLabel = CurrentStepProgressLabel,
                     DrawingSheetsToProcess = SelectedDrawingSheets.Count,
                     DrawingSheetsProcessed = DrawingSheetsProcessed,
@@ -1262,7 +1260,7 @@ internal partial class TransmittalViewModel : BaseViewModel, IStatusRequester, I
 
         DispatcherHelper.DoEvents();
 
-    } 
+    }
 
     private bool IsPrinterInstalled(string PrinterName)
     {

@@ -54,11 +54,11 @@ internal class ExportPDFService : IExportPDFService
 
             if (paper.Width > paper.Height)
             {
-                pdfExportOptions.PaperOrientation = PageOrientationType.Landscape;
+                pdfExportOptions.PaperOrientation = PageOrientationType.Landscape;//横向方向
             }
             else
             {
-                pdfExportOptions.PaperOrientation = PageOrientationType.Portrait;
+                pdfExportOptions.PaperOrientation = PageOrientationType.Portrait;//竖向方向
             }
 
             App.RevitDocument.Export(folderPath, viewIDs, pdfExportOptions);
